@@ -1,3 +1,5 @@
+//(function() {
+
 // Class to represent location (point-of-interest)
 function Location(label, latLng, visible) {
 	var self = this;
@@ -6,7 +8,7 @@ function Location(label, latLng, visible) {
 	self.visible = ko.observable(visible);
 }
 
-// Overall viewmodel for this screen, along with initial state
+// Knockout: Overall viewmodel for this screen, along with initial state
 function MyViewModel() {
 	var self = this;
 
@@ -19,8 +21,7 @@ function MyViewModel() {
 
 	// Filter function
 	self.filter = function() {
-		var filterSubstr = $("#filter-form").val();
-		console.log(filterSubstr);
+		var filterSubstr = $("#filter-input").val();
 
 		// Loop through all locations, find locations that match filter substring
 		for (var i = 0; i < self.locations().length; i++) {
@@ -32,7 +33,7 @@ function MyViewModel() {
 	}
 }
 
-// Bind
+// Knockout bind
 ko.applyBindings(new MyViewModel());
 
 // Initialize Google Map
@@ -44,6 +45,7 @@ var map = new google.maps.Map(document.getElementById('map'), {
 
 // Initialize map markers
 var vm = ko.dataFor(document.body);
+var markers = [];
 for (var i = 0; i < vm.locations().length; i++) {
 	var latLng = vm.locations()[i].latLng();
 	var label = vm.locations()[i].label();
@@ -54,4 +56,34 @@ for (var i = 0; i < vm.locations().length; i++) {
 		position: latLng,
 		title: label
 	});
+
+	markers.push(marker);
 }
+
+// Function to remove marker for Google Map
+var removeMarker = function() {
+	var filterSubstr = $("#filter-input").val();
+
+	// Loop through all markers
+	for (var i = 0; i < markers.length; i++) {
+		var label = markers[i].title;
+
+		// If filter sub-string matches, then add marker. Else, remove marker.
+		if (label.indexOf(filterSubstr) > -1) {
+			markers[i].setMap(map);
+		}
+		else {
+			markers[i].setMap(null);
+		}
+	}
+};
+
+// Bind removeMarker() to click event of filter button & pressing enter on input form
+$("#filter-btn").click(removeMarker);
+$("#filter-input").keypress(function(event) {
+    if (event.which == 13) {
+        //event.preventDefault();  // prevent default is handled by Knockout
+        removeMarker();
+    }
+});
+//})();
