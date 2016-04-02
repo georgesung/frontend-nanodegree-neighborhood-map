@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Include jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+		<!-- Using Bootstrap CDN to include Bootstrap -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+		<!-- Custom fonts -->
+		<!--link href='https://fonts.googleapis.com/css?family=Lato:400' rel='stylesheet'-->
+
+		<link rel="stylesheet" href="css/style.css">
+
+		<title>Neighborhood Map for Boston, MA</title>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Stuff in Boston</h1>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					<div class="row">
+						<div class="col-md-9">
+							<form role="form" data-bind="submit: filter">
+								<div class="form-group">
+									<input type="text" class="form-control" id="filter-form" placeholder="Enter Filter">
+								</div>
+							</form>
+						</div>
+						<div class="col-md-3">
+							<button type="button" class="btn btn-default" data-bind="click: filter">Filter</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<ul data-bind="foreach: locations">
+								<li data-bind="visible: visible"><span data-bind="text: label"></span></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-9" id="map" style="height:500px;">
+				</div>
+			</div>
+		</div>
+
+		<script src="https://maps.googleapis.com/maps/api/js"></script>
+
+		<script src="js/knockout-3.4.0.js"></script>
+		<script src="js/script.js"></script>
+
+	</body>
+</html>
