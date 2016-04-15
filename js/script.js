@@ -36,7 +36,18 @@ function MyViewModel() {
 			"TD Garden",
 			{lat: 42.366190, lng: -71.062114},
 			"TD_Garden",
+			true),
+		new Location(
+			"Fenway Park",
+			{lat: 42.346795, lng: -71.097229},
+			"Fenway_Park",
+			true),
+		new Location(
+			"Harvard University",
+			{lat: 42.377003, lng: -71.116628},
+			"Harvard_University",
 			true)
+
 	]);
 
 	// Filter function: Make items in the list invisible/visible, depending on filter string
@@ -138,9 +149,9 @@ var infoWindow = new google.maps.InfoWindow({
 
 // Initialize Google Map
 var map = new google.maps.Map(document.getElementById('map'), {
-	center: {lat: 42.36, lng: -71.08},
+	center: {lat: 42.360139, lng: -71.094192},
 	scrollwheel: false,
-	zoom: 14
+	zoom: 13
 });
 
 // Initialize map markers
