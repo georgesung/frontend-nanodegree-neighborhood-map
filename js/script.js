@@ -42,7 +42,7 @@ function MyViewModel() {
 			true)
 	]);
 
-	// Filter function
+	// Filter function: Make items in the list invisible/visible, depending on filter string
 	self.filter = function() {
 		var filterSubstr = $("#filter-input").val();
 
@@ -57,11 +57,9 @@ function MyViewModel() {
 
 	// On-click listener for list item, to bounce corresponding marker
 	self.listClick = function(location) {
-		var label = location.label();
-
 		// Loop through all markers to find corresponding marker
 		for (var i = 0; i < markers.length; i++) {
-			if (markers[i].title == label) {
+			if (markers[i].locationObject == location) {
 				markers[i].setAnimation(4);
 			}
 		}
@@ -85,7 +83,7 @@ function removeMarker() {
 
 	// Loop through all markers
 	for (var i = 0; i < markers.length; i++) {
-		var label = markers[i].title;
+		var label = markers[i].locationObject.label();
 
 		// If filter sub-string matches, then add marker. Else, remove marker.
 		if (label.indexOf(filterSubstr) > -1) {
@@ -138,15 +136,13 @@ var map = new google.maps.Map(document.getElementById('map'), {
 
 // Initialize map markers
 for (var i = 0; i < vm.locations().length; i++) {
-	var latLng = vm.locations()[i].latLng();
-	var label = vm.locations()[i].label();
+	var locationObject = vm.locations()[i];
 
 	// Create marker
 	var marker = new google.maps.Marker({
 		map: map,
-		position: latLng,
-		title: label,
-		locationObject: vm.locations()[i]
+		position: locationObject.latLng(),
+		locationObject: locationObject
 	});
 
 	// Animate marker when marker is selected
