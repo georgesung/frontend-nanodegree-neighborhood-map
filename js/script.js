@@ -1,16 +1,13 @@
 //(function() {
 
-// FIXME: Confirm if id attribute is needed at all for the locations. Remove id stuff if not.
-
 /////////////////////////////////////
 // Knockout JS code
 /////////////////////////////////////
 
 // Class to represent location (point-of-interest)
-function Location(label, id, latLng, wikiTitle, visible) {
+function Location(label, latLng, wikiTitle, visible) {
 	var self = this;
 	self.label = ko.observable(label);
-	self.id = ko.observable(id);  // setting id as observable may be overkill
 	self.latLng = ko.observable(latLng);
 	self.wikiTitle = ko.observable(wikiTitle)
 	self.visible = ko.observable(visible);
@@ -27,19 +24,16 @@ function MyViewModel() {
 	self.locations = ko.observableArray([
 		new Location(
 			"Boston Common",
-			"boston-common",
 			{lat: 42.355137, lng: -71.065604},
 			"Boston_Common",
 			true),
 		new Location(
 			"MIT",
-			"mit",
 			{lat: 42.360139, lng: -71.094192},
 			"Massachusetts_Institute_of_Technology",
 			true),
 		new Location(
 			"TD Garden",
-			"td-garden",
 			{lat: 42.366190, lng: -71.062114},
 			"TD_Garden",
 			true)
