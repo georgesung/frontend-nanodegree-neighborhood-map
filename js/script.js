@@ -14,6 +14,9 @@ function Location(label, id, latLng, wikiTitle, visible) {
 	self.latLng = ko.observable(latLng);
 	self.wikiTitle = ko.observable(wikiTitle)
 	self.visible = ko.observable(visible);
+
+	// Google Maps marker object reference will be determined after Location construction
+	self.markerObject = null;
 }
 
 // Knockout: Overall viewmodel for this screen, along with initial state
@@ -55,12 +58,16 @@ function MyViewModel() {
 		}
 	}
 
-	// On-click listener for list item, to bounce corresponding marker
+	// On-click listener for list item, to bounce corresponding marker and pop up info window
 	self.listClick = function(location) {
 		// Loop through all markers to find corresponding marker
 		for (var i = 0; i < markers.length; i++) {
 			if (markers[i].locationObject == location) {
+				// Bounce the marker
 				markers[i].setAnimation(4);
+
+				// Pop up info window
+				popUpInfoWindow(location);
 			}
 		}
 	}
@@ -77,7 +84,7 @@ ko.applyBindings(new MyViewModel());
 var vm = ko.dataFor(document.body);
 var markers = [];
 
-// Function to remove marker for Google Maps
+// Function to remove marker for Google Maps based in filter string
 function removeMarker() {
 	var filterSubstr = $("#filter-input").val();
 
@@ -95,18 +102,13 @@ function removeMarker() {
 	}
 }
 
-// Function to bounce the Google Maps marker
-function onClickMarker() {
-	var self = this;
+// Function to pop up info window with Wikipedia summary of the location of interest
+// Wikipedia summary text obtained through AJAX request using Wikipedia API
+function popUpInfoWindow(locationObject) {
+	var title = locationObject.label();
+	var wikiTitle = locationObject.wikiTitle();
 
-	// Bounce the marker
-	self.setAnimation(4);  // setAnimation(4) bounces the marker for a short time
-
-	// Pop-up info window with Wikipedia summary of the location of interest
-	// Wikipedia summary text obtained through AJAX request using Wikipedia API
-	console.log(self.locationObject);
-
-	$.getJSON("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=Lu_Yen-hsun", function(data) {
+	$.getJSON("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=" + wikiTitle, function(data) {
 		var pages = data.query.pages;
 
 		// pages is an object (hash) with only 1 key, so get that 1 key
@@ -116,9 +118,22 @@ function onClickMarker() {
 		var extract = pages[firstKey].extract;
 
 		// Display extract on info window on top of corresponding marker
-		infoWindow.setContent("<h3>blah blah</h3>" + extract);
-		infoWindow.open(map, self);
+		infoWindow.setContent("<h3>" + title + "</h3>" +
+			"<p><small>Wikipedia excerpt below obtained via Wikipedia API (https://www.mediawiki.org/wiki/API:Main_page)</small></p>" +
+			extract);
+		infoWindow.open(map, locationObject.markerObject);
 	});
+}
+
+// Function to handle clicks on Google Maps marker
+function onClickMarker() {
+	var self = this;
+
+	// Bounce the marker
+	self.setAnimation(4);  // setAnimation(4) bounces the marker for a short time
+
+	// Pop up info window
+	popUpInfoWindow(self.locationObject);
 
 }
 
@@ -145,9 +160,13 @@ for (var i = 0; i < vm.locations().length; i++) {
 		locationObject: locationObject
 	});
 
+	// Update locationObject's marker pointer/reference
+	locationObject.markerObject = marker;
+
 	// Animate marker when marker is selected
 	marker.addListener('click', onClickMarker);
 
+	// Add marker to global marker array
 	markers.push(marker);
 }
 
