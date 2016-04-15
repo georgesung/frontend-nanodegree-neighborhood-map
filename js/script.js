@@ -116,7 +116,11 @@ function popUpInfoWindow(locationObject) {
 	$.ajax({
 		dataType: "json",
 		url: "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=" + wikiTitle,
-		data: { origin: "http://georgesung.github.io/" },  // this enables CORS on Wikipedia API
+		data: {
+			action: 'query',
+			format: 'json',
+			origin: "http://georgesung.github.io/"
+		},
 		success: function(data) {
 			var pages = data.query.pages;
 
