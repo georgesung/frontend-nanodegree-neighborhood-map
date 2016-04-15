@@ -113,6 +113,32 @@ function popUpInfoWindow(locationObject) {
 	var title = locationObject.label();
 	var wikiTitle = locationObject.wikiTitle();
 
+	$.ajax({
+		dataType: "json",
+		url: "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=" + wikiTitle,
+		data: { origin: "http://georgesung.github.io/" },  // this enables CORS on Wikipedia API
+		success: function(data) {
+			var pages = data.query.pages;
+
+			// pages is an object (hash) with only 1 key, so get that 1 key
+			for (var firstKey in pages) break;
+
+			// extract will be the first intro paragraph in the Wikipedia entry
+			var extract = pages[firstKey].extract;
+
+			// Display extract on info window on top of corresponding marker
+			infoWindow.setContent("<h3>" + title + "</h3>" +
+				"<p><small>Wikipedia excerpt below obtained via Wikipedia API (https://www.mediawiki.org/wiki/API:Main_page)</small></p>" +
+				extract);
+			infoWindow.open(map, locationObject.markerObject);
+		}
+	}).error(function(e) {  // error handling
+		// Display error message on info window on top of corresponding marker
+		infoWindow.setContent("<p><b>Error:</b> Could not load Wikipedia excerpt<p>");
+		infoWindow.open(map, locationObject.markerObject);
+	});
+
+	/*
 	$.getJSON("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=" + wikiTitle, function(data) {
 		var pages = data.query.pages;
 
@@ -132,6 +158,7 @@ function popUpInfoWindow(locationObject) {
 		infoWindow.setContent("<p><b>Error:</b> Could not load Wikipedia excerpt<p>");
 		infoWindow.open(map, locationObject.markerObject);
 	});
+	*/
 }
 
 // Function to handle clicks on Google Maps marker
