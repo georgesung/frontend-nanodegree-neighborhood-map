@@ -127,6 +127,10 @@ function popUpInfoWindow(locationObject) {
 			"<p><small>Wikipedia excerpt below obtained via Wikipedia API (https://www.mediawiki.org/wiki/API:Main_page)</small></p>" +
 			extract);
 		infoWindow.open(map, locationObject.markerObject);
+	}).error(function(e) {  // error handling
+		// Display error message on info window on top of corresponding marker
+		infoWindow.setContent("<p><b>Error:</b> Could not load Wikipedia excerpt<p>");
+		infoWindow.open(map, locationObject.markerObject);
 	});
 }
 
