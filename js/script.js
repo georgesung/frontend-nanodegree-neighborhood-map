@@ -1,15 +1,18 @@
 //(function() {
 
+// FIXME: Confirm if id attribute is needed at all for the locations. Remove id stuff if not.
+
 /////////////////////////////////////
 // Knockout JS code
 /////////////////////////////////////
 
 // Class to represent location (point-of-interest)
-function Location(label, id, latLng, visible) {
+function Location(label, id, latLng, wikiTitle, visible) {
 	var self = this;
 	self.label = ko.observable(label);
 	self.id = ko.observable(id);  // setting id as observable may be overkill
 	self.latLng = ko.observable(latLng);
+	self.wikiTitle = ko.observable(wikiTitle)
 	self.visible = ko.observable(visible);
 }
 
@@ -17,11 +20,26 @@ function Location(label, id, latLng, visible) {
 function MyViewModel() {
 	var self = this;
 
-	// Data
+	// Model (data)
 	self.locations = ko.observableArray([
-		new Location("Boston Common", "boston-common", {lat: 42.355137, lng: -71.065604}, true),
-		new Location("MIT", "mit", {lat: 42.360139, lng: -71.094192}, true),
-		new Location("TD Garden", "td-garden", {lat: 42.366190, lng: -71.062114}, true)
+		new Location(
+			"Boston Common",
+			"boston-common",
+			{lat: 42.355137, lng: -71.065604},
+			"Boston_Common",
+			true),
+		new Location(
+			"MIT",
+			"mit",
+			{lat: 42.360139, lng: -71.094192},
+			"Massachusetts_Institute_of_Technology",
+			true),
+		new Location(
+			"TD Garden",
+			"td-garden",
+			{lat: 42.366190, lng: -71.062114},
+			"TD_Garden",
+			true)
 	]);
 
 	// Filter function
@@ -80,9 +98,36 @@ function removeMarker() {
 }
 
 // Function to bounce the Google Maps marker
-function bounceMarker() {
-	this.setAnimation(4);  // setAnimation(4) bounces the marker for a short time
+function onClickMarker() {
+	var self = this;
+
+	// Bounce the marker
+	self.setAnimation(4);  // setAnimation(4) bounces the marker for a short time
+
+	// Pop-up info window with Wikipedia summary of the location of interest
+	// Wikipedia summary text obtained through AJAX request using Wikipedia API
+	console.log(self.locationObject);
+
+	$.getJSON("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=Lu_Yen-hsun", function(data) {
+		var pages = data.query.pages;
+
+		// pages is an object (hash) with only 1 key, so get that 1 key
+		for (var firstKey in pages) break;
+
+		// extract will be the first intro paragraph in the Wikipedia entry
+		var extract = pages[firstKey].extract;
+
+		// Display extract on info window on top of corresponding marker
+		infoWindow.setContent("<h3>blah blah</h3>" + extract);
+		infoWindow.open(map, self);
+	});
+
 }
+
+// Initialize info window
+var infoWindow = new google.maps.InfoWindow({
+	content: "placeholder"
+});
 
 // Initialize Google Map
 var map = new google.maps.Map(document.getElementById('map'), {
@@ -100,11 +145,12 @@ for (var i = 0; i < vm.locations().length; i++) {
 	var marker = new google.maps.Marker({
 		map: map,
 		position: latLng,
-		title: label
+		title: label,
+		locationObject: vm.locations()[i]
 	});
 
 	// Animate marker when marker is selected
-	marker.addListener('click', bounceMarker);
+	marker.addListener('click', onClickMarker);
 
 	markers.push(marker);
 }
