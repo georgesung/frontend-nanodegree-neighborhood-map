@@ -1,3 +1,10 @@
+/*
+* Main javascript file for the web app.
+* Separated into 2 sections:
+* (1) Knockout JS code
+* (2) JQuery and Google Maps API code
+*/
+
 'use strict';
 
 /////////////////////////////////////
@@ -63,6 +70,15 @@ function MyViewModel() {
 			// If form input matches filter, location is visible. Else, invisible.
 			self.locations()[i].visible( (label.indexOf(filterSubstr) > -1) ? true : false );
 		}
+
+		removeMarker();
+	};
+
+	// Also perform filter function when user presses Enter in the input field
+	self.onEnterFilter = function(d, e) {
+		if (e.keyCode == 13) {
+			self.filter();
+		}
 	};
 
 	// On-click listener for list item, to bounce corresponding marker and pop up info window
@@ -103,10 +119,10 @@ function removeMarker() {
 
 		// If filter sub-string matches, then add marker. Else, remove marker.
 		if (label.indexOf(filterSubstr) > -1) {
-			markers[i].setMap(map);
+			markers[i].setVisible(true);
 		}
 		else {
-			markers[i].setMap(null);
+			markers[i].setVisible(false);
 		}
 	}
 }
@@ -117,6 +133,16 @@ function popUpInfoWindow(locationObject) {
 	var title = locationObject.label();
 	var wikiTitle = locationObject.wikiTitle();
 
+	infoWindow.close();
+
+	// Timeout function to handle errors
+	var wikiRequestTimeout = setTimeout(function() {
+		// Display error message in info window on top of corresponding marker
+		infoWindow.setContent("<p><b>Error:</b> Could not load Wikipedia excerpt</p>");
+		infoWindow.open(map, locationObject.markerObject);
+	}, 5000);
+
+	// AJAX request to Wikipedia
 	$.ajax({
 		dataType: "jsonp",
 		url: "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=" + wikiTitle,
@@ -124,21 +150,19 @@ function popUpInfoWindow(locationObject) {
 			var pages = data.query.pages;
 
 			// pages is an object (hash) with only 1 key, so get that 1 key
-			for (var firstKey in pages) break;
+			for (var firstKey in pages) {break;}
 
 			// extract will be the first intro paragraph in the Wikipedia entry
 			var extract = pages[firstKey].extract;
 
-			// Display extract on info window on top of corresponding marker
+			// Display extract in info window on top of corresponding marker
 			infoWindow.setContent("<h3>" + title + "</h3>" +
 				"<p><small>Wikipedia excerpt below obtained via Wikipedia API (https://www.mediawiki.org/wiki/API:Main_page)</small></p>" +
 				extract);
 			infoWindow.open(map, locationObject.markerObject);
+
+			clearTimeout(wikiRequestTimeout);
 		}
-	}).error(function(e) {  // error handling
-		// Display error message on info window on top of corresponding marker
-		infoWindow.setContent("<p><b>Error:</b> Could not load Wikipedia excerpt<p>");
-		infoWindow.open(map, locationObject.markerObject);
 	});
 }
 
@@ -194,12 +218,3 @@ function initMap() {
 function errorMap() {
 	alert("Error: Google Maps failed to load");
 }
-
-// Bind removeMarker() to click event of filter button & pressing enter on input form
-$("#filter-btn").click(removeMarker);
-$("#filter-input").keypress(function(event) {
-    if (event.which == 13) {
-        //event.preventDefault();  // prevent default is handled by Knockout
-        removeMarker();
-    }
-});
