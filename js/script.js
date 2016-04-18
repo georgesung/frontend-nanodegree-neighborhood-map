@@ -70,7 +70,13 @@ function MyViewModel() {
 			self.locations()[i].visible( (label.indexOf(filterSubstr) > -1) ? true : false );
 		}
 
+		// Update Google Maps markers
 		removeMarker();
+
+		// Close the info window, so user can see the filtered markers better
+		// Also prevents scenario where user filters-out a location with an open info window,
+		// and the info window remains open after the marker is invisible
+		infoWindow.close();
 	};
 
 	// Also perform filter function when user presses Enter in the input field
