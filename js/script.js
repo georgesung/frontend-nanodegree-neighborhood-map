@@ -71,7 +71,7 @@ function MyViewModel() {
 		}
 
 		// Update Google Maps markers
-		removeMarker();
+		removeMarker(filterSubstr);
 
 		// Close the info window, so user can see the filtered markers better
 		// Also prevents scenario where user filters-out a location with an open info window,
@@ -114,10 +114,8 @@ var markers = [];
 var infoWindow = null;
 var map = null;
 
-// Function to remove marker for Google Maps based in filter string
-function removeMarker() {
-	var filterSubstr = $("#filter-input").val();
-
+// Function to remove marker for Google Maps based on filter string
+function removeMarker(filterSubstr) {
 	// Loop through all markers
 	for (var i = 0; i < markers.length; i++) {
 		var label = markers[i].locationObject.label();
