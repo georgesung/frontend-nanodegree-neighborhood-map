@@ -26,7 +26,7 @@
 						<div class="col-md-9">
 							<form role="form" data-bind="submit: filter">
 								<div class="form-group">
-									<input type="text" class="form-control" id="filter-input" placeholder="Enter Filter">
+									<input type="text" class="form-control" id="filter-input" placeholder="Enter Filter" data-bind="textInput: filterSubstr">
 								</div>
 							</form>
 						</div>
@@ -48,7 +48,7 @@
 		</div>
 
 		<!-- Include Google Maps, Knockout.js, and own custom script -->
-		<script src="https://maps.googleapis.com/maps/api/js"></script>
+		<script async src="https://maps.googleapis.com/maps/api/js?callback=initMap" onerror="errorMap()"></script>
 		<script src="js/knockout-3.4.0.js"></script>
 		<script src="js/script.js"></script>
 

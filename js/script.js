@@ -1,4 +1,4 @@
-//(function() {
+'use strict';
 
 /////////////////////////////////////
 // Knockout JS code
@@ -9,7 +9,7 @@ function Location(label, latLng, wikiTitle, visible) {
 	var self = this;
 	self.label = ko.observable(label);
 	self.latLng = ko.observable(latLng);
-	self.wikiTitle = ko.observable(wikiTitle)
+	self.wikiTitle = ko.observable(wikiTitle);
 	self.visible = ko.observable(visible);
 
 	// Google Maps marker object reference will be determined after Location construction
@@ -50,9 +50,11 @@ function MyViewModel() {
 
 	]);
 
+	self.filterSubstr = ko.observable("");
+
 	// Filter function: Make items in the list invisible/visible, depending on filter string
 	self.filter = function() {
-		var filterSubstr = $("#filter-input").val();
+		var filterSubstr = self.filterSubstr();
 
 		// Loop through all locations, find locations that match filter substring
 		for (var i = 0; i < self.locations().length; i++) {
@@ -61,7 +63,7 @@ function MyViewModel() {
 			// If form input matches filter, location is visible. Else, invisible.
 			self.locations()[i].visible( (label.indexOf(filterSubstr) > -1) ? true : false );
 		}
-	}
+	};
 
 	// On-click listener for list item, to bounce corresponding marker and pop up info window
 	self.listClick = function(location) {
@@ -75,7 +77,7 @@ function MyViewModel() {
 				popUpInfoWindow(location);
 			}
 		}
-	}
+	};
 }
 
 // Knockout bind
@@ -88,6 +90,8 @@ ko.applyBindings(new MyViewModel());
 // "Global" variables
 var vm = ko.dataFor(document.body);
 var markers = [];
+var infoWindow = null;
+var map = null;
 
 // Function to remove marker for Google Maps based in filter string
 function removeMarker() {
@@ -150,37 +154,45 @@ function onClickMarker() {
 
 }
 
-// Initialize info window
-var infoWindow = new google.maps.InfoWindow({
-	content: "placeholder"
-});
-
-// Initialize Google Map
-var map = new google.maps.Map(document.getElementById('map'), {
-	center: {lat: 42.360139, lng: -71.094192},
-	scrollwheel: false,
-	zoom: 13
-});
-
-// Initialize map markers
-for (var i = 0; i < vm.locations().length; i++) {
-	var locationObject = vm.locations()[i];
-
-	// Create marker
-	var marker = new google.maps.Marker({
-		map: map,
-		position: locationObject.latLng(),
-		locationObject: locationObject
+// Google Maps API callback function to initialize map
+function initMap() {
+	// Initialize info window
+	infoWindow = new google.maps.InfoWindow({
+		content: "placeholder"
 	});
 
-	// Update locationObject's marker pointer/reference
-	locationObject.markerObject = marker;
+	// Initialize Google Map
+	map = new google.maps.Map(document.getElementById('map'), {
+		center: {lat: 42.360139, lng: -71.094192},
+		scrollwheel: false,
+		zoom: 13
+	});
 
-	// Animate marker when marker is selected
-	marker.addListener('click', onClickMarker);
+	// Initialize map markers
+	for (var i = 0; i < vm.locations().length; i++) {
+		var locationObject = vm.locations()[i];
 
-	// Add marker to global marker array
-	markers.push(marker);
+		// Create marker
+		var marker = new google.maps.Marker({
+			map: map,
+			position: locationObject.latLng(),
+			locationObject: locationObject
+		});
+
+		// Update locationObject's marker pointer/reference
+		locationObject.markerObject = marker;
+
+		// Animate marker when marker is selected
+		marker.addListener('click', onClickMarker);
+
+		// Add marker to global marker array
+		markers.push(marker);
+	}
+}
+
+// Error function to handle Google Maps API error
+function errorMap() {
+	alert("Error: Google Maps failed to load");
 }
 
 // Bind removeMarker() to click event of filter button & pressing enter on input form
@@ -191,5 +203,3 @@ $("#filter-input").keypress(function(event) {
         removeMarker();
     }
 });
-
-//})();
