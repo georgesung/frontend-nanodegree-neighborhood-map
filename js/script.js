@@ -54,7 +54,6 @@ function MyViewModel() {
 			{lat: 42.377003, lng: -71.116628},
 			"Harvard_University",
 			true)
-
 	]);
 
 	self.filterSubstr = ko.observable("");
@@ -175,7 +174,6 @@ function onClickMarker() {
 
 	// Pop up info window
 	popUpInfoWindow(self.locationObject);
-
 }
 
 // Google Maps API callback function to initialize map
